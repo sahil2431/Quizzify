@@ -4,10 +4,11 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
-
+import quizRoutes from './routes/quizRoutes.js';
 const app = express();
 
 app.use(cors());
+
 app.use(express.json());
 
 mongoose.connect(process.env.MONGODB_URI)
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 // API Routes
 app.use('/api/users', userRoutes) ;
 app.use('/api/auth', authRoutes);
+app.use('/api/quizzes', quizRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;

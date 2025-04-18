@@ -49,9 +49,9 @@ const quizSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
-    duration: {
-      type: Number, // Duration in minutes
-      default: 30
+    durationPerQuestion: {
+      type: Number, // Duration in seconds for each question
+      default: 10
     },
     startTime: {
       type: Date,
@@ -61,18 +61,17 @@ const quizSchema = new mongoose.Schema(
       type: Date,
       default: null
     },
-    attempts: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'QuizAttempt'
-    }]
+    status : {
+      type : String,
+      enum : ["started" , "completed" , "not started"],
+      default : "not started"
+    }
   },
   { timestamps: true }
 );
 
-// Generate a random access code before saving if not provided
 quizSchema.pre('save', function(next) {
   if (!this.accessCode && !this.isPublic) {
-    // Generate a random 6-character alphanumeric code
     this.accessCode = Math.random().toString(36).substring(2, 8).toUpperCase();
   }
   next();

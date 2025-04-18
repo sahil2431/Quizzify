@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { auth } from '../firebase';
 
-const API_URL = 'http://localhost:5000/api';
+
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -18,6 +18,7 @@ api.interceptors.request.use(
       const token = await user.getIdToken();
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log('Authorization Header:', config.headers.Authorization);
     return config;
   },
   (error) => {
@@ -75,5 +76,44 @@ export const registerUser = async (userData) => {
     throw error;
   }
 };
+
+export const saveQuizAttempt = async (quizId, answers, totalScore, isAIGenerated = false) => {
+  try {
+    const response = await api.post('/quiz-attempts', {
+      quizId,
+      answers,
+      totalScore,
+      isAIGenerated
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error saving quiz attempt:', error);
+    throw error;
+  }
+};
+
+export const getQuizByCode = async (code) => {
+  try {
+    console.log("code", code); 
+    const response = await api.get(`/quizzes/${code}`);
+    console.log("response", response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error getting quiz:', error);
+    throw error;
+  }
+};
+
+export const getUserQuizzes = async () => {
+  console.log("Getting user quizzes");
+  try {
+    const response = await api.get('/quizzes/getAll');
+    console.log("response", response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error getting user quizzes:', error.response);
+    throw error;
+  }
+}
 
 export default api; 

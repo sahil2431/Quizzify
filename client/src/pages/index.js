@@ -4,6 +4,8 @@ import Login from "./Login";
 import Signup from "./Signup";
 import AccountDetails from "./AccountDetails";
 import JoinQuizz from "./JoinQuizz";
+import Quiz from "./Quiz";
+import MyQuizzes from './MyQuizzes';
 
 export {
     Dashboard , 
@@ -11,5 +13,7 @@ export {
     Login , 
     Signup ,
     AccountDetails,
-    JoinQuizz
+    JoinQuizz,
+    Quiz,
+    MyQuizzes
 }

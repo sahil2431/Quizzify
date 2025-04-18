@@ -13,7 +13,9 @@ import {
   Signup,
   AccountDetails,
   Landing,
-  JoinQuizz
+  JoinQuizz,
+  Quiz,
+  MyQuizzes
 } from "./pages/index.js"
 
 // Layout component for authenticated pages with Sidebar
@@ -98,24 +100,7 @@ function AppRoutes() {
           element={
             <PrivateRoute>
               <QuizLayout>
-                <div className="animate-fadeIn">
-                  <h1 className="text-2xl font-bold mb-4">Quiz</h1>
-                  {/* Quiz content will be implemented in a separate component */}
-                  <p>Quiz loaded with ID: Use useParams() to access</p>
-                  <div className="mt-8 flex justify-between">
-                    <button 
-                      className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-                      onClick={() => window.history.back()}
-                    >
-                      Exit Quiz
-                    </button>
-                    <button 
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                    >
-                      Submit Quiz
-                    </button>
-                  </div>
-                </div>
+                <Quiz />
               </QuizLayout>
             </PrivateRoute>
           } 
@@ -125,24 +110,7 @@ function AppRoutes() {
           element={
             <PrivateRoute>
               <QuizLayout>
-                <div className="animate-fadeIn">
-                  <h1 className="text-2xl font-bold mb-4">AI Generated Quiz</h1>
-                  {/* AI Quiz content will be implemented in a separate component */}
-                  <p>AI Quiz loaded. Use useLocation().state to access parameters</p>
-                  <div className="mt-8 flex justify-between">
-                    <button 
-                      className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-                      onClick={() => window.history.back()}
-                    >
-                      Exit Quiz
-                    </button>
-                    <button 
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                    >
-                      Submit Quiz
-                    </button>
-                  </div>
-                </div>
+                <Quiz />
               </QuizLayout>
             </PrivateRoute>
           } 
@@ -180,10 +148,7 @@ function AppRoutes() {
           element={
             <PrivateRoute>
               <DashboardLayout>
-                <div className="animate-fadeIn">
-                  <h1 className="text-2xl font-bold mb-4">My Quizzes</h1>
-                  {/* Content to be added */}
-                </div>
+                <MyQuizzes />
               </DashboardLayout>
             </PrivateRoute>
           } 

@@ -59,8 +59,8 @@ const Sidebar = ({ className, onToggle }) => {
       
       {/* Header with Logo/App Name */}
       <div className="p-4 border-b border-indigo-800 flex items-center">
-        <span className={`font-bold text-xl ${!isOpen && 'hidden'}`}>QuizApp</span>
-        <span className={`font-bold text-xl ${isOpen && 'hidden'}`}>Q</span>
+        <span className={`font-bold text-xl ${!isOpen && 'hidden'}`}>Quizzify</span>
+        <span className={`font-bold text-xl ${isOpen && 'hidden'}`}>Qf</span>
       </div>
       
       {/* Navigation Links */}

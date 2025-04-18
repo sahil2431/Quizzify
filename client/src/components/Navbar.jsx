@@ -21,7 +21,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         {/* Logo */}
         <div className="flex items-center">
-          <h1 className="text-xl font-bold text-indigo-600">QuizAI</h1>
+          <h1 className="text-xl font-bold text-indigo-600">Quizzify</h1>
         </div>
 
         {/* User Profile */}

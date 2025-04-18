@@ -8,7 +8,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginWithGoogle  , currentUser , userProfile} = useAuth();
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
@@ -42,14 +42,11 @@ const Login = () => {
   }
 
   useEffect(() => {
-    // Check if user is already logged in
     if (currentUser) {
-      // If user has a profile with role, redirect to dashboard
+      // Check if userProfile is loaded and has a role
       if (userProfile && userProfile.role) {
         navigate('/dashboard');
-      } 
-      // If user is authenticated but has no role, redirect to role selection
-      else if (currentUser && (!userProfile || !userProfile.role)) {
+      } else if (userProfile && (!userProfile.role)) {
         navigate('/select-role');
       }
     }
