@@ -69,7 +69,7 @@ const Leaderboard = ({
         )}
       </div>
 
-      <div className="mb-8">
+      <div className="mb-8 mt-28">
         {/* Top 3 players podium */}
         {sortedPlayers.length > 0 && (
           <div className="flex justify-center items-end mb-8 h-40">
@@ -84,7 +84,7 @@ const Leaderboard = ({
                       className="w-12 h-12 rounded-full"
                     />
                   ) : (
-                    <div className="w-12 h-12 bg-silver rounded-full flex items-center justify-center text-white font-bold">
+                    <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center text-white font-bold">
                       {sortedPlayers[1].displayName.charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -92,8 +92,8 @@ const Leaderboard = ({
                 <div className="truncate text-center w-full">
                   {sortedPlayers[1].displayName}
                 </div>
-                <div className="font-bold">{sortedPlayers[1].score} pts</div>
-                <div className="bg-silver h-24 w-full rounded-t-lg flex items-center justify-center text-3xl font-bold text-white">
+                <div className="font-bold">{sortedPlayers[1].points} pts</div>
+                <div className="bg-gray-600  h-24 w-full rounded-t-lg flex items-center justify-center text-3xl font-bold text-white">
                   2
                 </div>
               </div>
@@ -142,7 +142,7 @@ const Leaderboard = ({
                 <div className="truncate text-center w-full">
                   {sortedPlayers[2].displayName}
                 </div>
-                <div className="font-bold">{sortedPlayers[2].score} pts</div>
+                <div className="font-bold">{sortedPlayers[2].points} pts</div>
                 <div className="bg-amber-700 h-16 w-full rounded-t-lg flex items-center justify-center text-2xl font-bold text-white">
                   3
                 </div>
@@ -191,7 +191,7 @@ const Leaderboard = ({
                       " (You)"}
                   </span>
                 </div>
-                <div className="font-bold">{player.score}</div>
+                <div className="font-bold">{player.points}</div>
               </div>
             ))}
 

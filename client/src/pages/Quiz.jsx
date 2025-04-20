@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { ref, onValue, set, update } from "firebase/database";
+import { ref, onValue, set, update, get } from "firebase/database";
 import { database } from "../firebase";
 import { saveQuizAttempt, getQuizByCode } from "../services/api";
 import TeacherQuiz from "../components/quiz/TeacherQuiz";
@@ -40,30 +40,41 @@ const QuizPage = () => {
                 setQuiz(response.quiz);
                 setQuizStatus("started");
                 setDurationPerQues(response.quiz.durationPerQuestion)
-                try {
-                  await set(
-                    ref(database, `quizzes/${quizId}/owner`),
-                    currentUser.uid
-                  );
 
-                  
-                  await update(ref(database, `quizzes/${quizId}`), {
-                    startedAt: Date.now(),
-                    questions: response.quiz.questions,
-                    status: "started",
-                    currentQuestionIndex: 0,
-                    durationPerQues: response.quiz.durationPerQuestion,
-                    timeLeftCurrQues : response.quiz.durationPerQuestion
-                  });
-                  await update(ref(database, `quizzes/${quizId}/leaderboard`), {
-                    showLeaderboard: false,
-                  });
+                const quizRef = ref(database, `quizzes/${quizId}`);
+                const quizSnapshot = await get(quizRef);
+                if(quizSnapshot.exists() && quizSnapshot.val().status === "started"){
+                  setQuizStatus("started")
+                }else {
 
-                } catch (err) {
-                  console.error("Firebase update error:", err);
-                  setError("Error setting up quiz: " + err.message);
+                  try {
+                    await set(
+                      ref(database, `quizzes/${quizId}/owner`),
+                      currentUser.uid
+                    );
+  
+                    
+                    await update(ref(database, `quizzes/${quizId}`), {
+                      startedAt: Date.now(),
+                      questions: response.quiz.questions,
+                      status: "started",
+                      currentQuestionIndex: 0,
+                      durationPerQues: response.quiz.durationPerQuestion,
+                      timeLeftCurrQues : response.quiz.durationPerQuestion
+                    });
+                    await update(ref(database, `quizzes/${quizId}/leaderboard`), {
+                      showLeaderboard: false,
+                    });
+  
+                  } catch (err) {
+                    console.error("Firebase update error:", err);
+                    setError("Error setting up quiz: " + err.message);
+                  }
                 }
               } else {
+
+                const userRef = ref(database, `quizzes/${quizId}/leaderboard/${currentUser.uid}`);
+  const userSnapshot = await get(userRef);
                 await set(
                   ref(database, `quizzes/${quizId}/users/${currentUser.uid}`),
                   true
@@ -71,12 +82,15 @@ const QuizPage = () => {
 
 
                 // Set user info in the leaderboard
-                await set(ref(database, `quizzes/${quizId}/leaderboard/${currentUser.uid}`), {
-                  displayName: currentUser.displayName || "Anonymous",
-                  photoURL: currentUser.photoURL || "",
-                  points: 0,
-                  time : 0,
-                })
+                if(!userSnapshot.exists()) {
+                  await set(ref(database, `quizzes/${quizId}/leaderboard/${currentUser.uid}`), {
+                    displayName: currentUser.displayName || "Anonymous",
+                    photoURL: currentUser.photoURL || "",
+                    points: 0,
+                    time : 0,
+                  })
+
+                }
 
               }
             } else if (!response.status) {

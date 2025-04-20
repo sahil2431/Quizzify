@@ -54,6 +54,11 @@ const TeacherQuiz = ({ quiz, quizId, quizStatus , durationPerQues }) => {
           showLeaderboard: false,
         });
         setCurrentQuestionIndex((prev) => prev + 1);
+      }else {
+        await update(ref(database , `quizzes/${quizId}`), {
+          status : "completed",
+          
+        })
       }
     }
   };

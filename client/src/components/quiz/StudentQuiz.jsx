@@ -23,7 +23,6 @@ const StudentQuiz = ({
   const [totalNumberofQuestion , setTotalNumberofQuestion] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [durationPerQues , setDurationPerQues] = useState(30);
-  const quizRef = ref(database, `quizzes/${quizId}`);
 
   
   // For AI quizzes only
@@ -72,12 +71,25 @@ const StudentQuiz = ({
     currentQuestionIndex >= quiz?.questions?.length
   ) {
     return (
-      <QuizResults
-        quiz={quiz}
-        currentUser={currentUser}
-        onExit={handleExitQuiz}
-        isTeacher={false}
-      />
+      <div>
+<Leaderboard
+  quizId={quizId}
+  isTeacher={false}
+  currentUser={currentUser}
+  totalQuestions={totalNumberofQuestion}
+  currentQuestion={currentQuestionIndex + 1}
+/>
+        <QuizResults
+          quizId={quizId}
+          currentUser={currentUser}
+          onExit={handleExitQuiz}
+          isTeacher={false}
+        />
+
+
+
+
+      </div>
     );
   }
 
