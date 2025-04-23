@@ -1,4 +1,37 @@
+import FeedBack from "../models/Feedback.js";
 import Quiz from "../models/Quiz.js";
+import { generateFeedback } from "../services/geminiService.js";
+
+function separateQuizData(quizText) {
+  // Regular expression to match each question and its answer options
+  const questionRegex = /(\d+)\.\s*(.*?)\s*(a\))\s*(.*?)\s*(b\))\s*(.*?)\s*(c\))\s*(.*?)\s*(d\))\s*(.*?)\s*\*\*Correct Answer: (.*?)\*\*/gs;
+
+  let questions = [];
+  let answers = [];
+
+  let match;
+  while ((match = questionRegex.exec(quizText)) !== null) {
+      const question = match[2].trim();
+      const options = [
+          match[4].trim(), // option a
+          match[6].trim(), // option b
+          match[8].trim(), // option c
+          match[10].trim() // option d
+      ];
+      const correctAnswer = match[11].trim();
+
+      // Store the question and options in the questions array
+      questions.push({
+          questionText: question,
+          options: options
+      });
+
+      // Store the correct answer in the answers array
+      answers.push(correctAnswer);
+  }
+
+  return { questions, answers };
+}
 
 export const getQuizzByCode = async (req, res) => {
   const accessCode = req.params.code;
@@ -55,3 +88,48 @@ export const getQuizzesOfUser = async (req, res) => {
       .json({ status: false, message: "Internal server error" });
   }
 };
+
+export const getAifeedback = async(req , res) => {
+  try {
+    const { questions, answers , quizCode } = req.body;
+    const userId = req.dbUser._id;
+
+    let feedback = await FeedBack.findOne({userId , quizCode});
+
+    if(feedback) {
+      return res.status(200).json({status : true , feedback : feedback.feedback})
+    }
+    
+    if (!questions || !answers || questions.length !== answers.length) {
+      return res.status(400).json({ error: 'Invalid input' });
+    }
+
+    let formattedQuestions = [];
+    let formattedAnswers = [];
+
+    for(let i = 0; i < questions.length; i++) {
+      
+      const studentAnswer = questions[i].options.find(option => {
+        if(option._id === answers[i].optionId) {
+          return option.text;
+        }
+      })
+      formattedQuestions.push({
+        questionText: questions[i].questionText,
+        correctAnswer: questions[i].options.find(option => option.isCorrect).text,
+      });
+      formattedAnswers.push(studentAnswer.text);
+    } 
+      
+    feedback = await generateFeedback(formattedQuestions, formattedAnswers);
+    const feedbackSave = await FeedBack.insertOne({userId , quizCode , feedback})
+    
+    return res.status(200).json({ status : true , feedback });
+
+
+   
+  } catch (err) {
+    console.error('Error generating feedback:', err);
+    return res.status(500).json({ error: 'Failed to generate feedback' });
+  }
+}

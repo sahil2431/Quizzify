@@ -1,12 +1,16 @@
 import React, { useState, useEffect, use } from "react";
 import { database } from "../../firebase";
 import { get, ref } from "firebase/database";
-import Leaderboard from "./Leaderboard";
+import ReactMarkdown from 'react-markdown'
+import { getAIfeedback } from "../../services/api";
 
 const QuizResults = ({ quizId, currentUser, onExit, isTeacher }) => {
   const [questions, setQuestions] = useState([]);
   const [userAnswers, setUserAnswers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [feedback, setFeedback] = useState(null);
+  const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
+
   useEffect(() => {
     const fetchQuizzData = async () => {
       setIsLoading(true);
@@ -33,18 +37,36 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher }) => {
     }
   }, [questions, userAnswers]);
 
+  const generateAiFeedback = async () => {
+    setIsFeedbackLoading(true);
+    try {
+      const response = await getAIfeedback(questions, userAnswers , quizId);
+      if (response) {
+        setFeedback(response.feedback);
+      } else {
+        setFeedback("No feedback available.");
+      }
+      
+    } catch (error) {
+      console.error("Error generating AI feedback:", error);
+      setFeedback("Error getting feedback")
+      setTimeout(() => {
+        setFeedback('')
+      }, 5000)
+    }finally {
+      setIsFeedbackLoading(false);
+    }
+  }
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      
       <div className="flex flex-col justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold">
-            { "Quiz Results"}
-          </h1>
+          <h1 className="text-2xl font-bold">{"Quiz Results"}</h1>
           <p className="text-gray-600">Quiz ID: {quizId}</p>
         </div>
 
@@ -65,7 +87,10 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher }) => {
                       className={`p-3 rounded-md ${
                         option.isCorrect
                           ? "bg-green-100 border border-green-500"
-                          : userAnswers[index].optionId === option._id && !userAnswers.isCorrect ? "bg-white border-2 border-red-500" : "bg-white border border-gray-300"
+                          : userAnswers[index].optionId === option._id &&
+                            !userAnswers.isCorrect
+                          ? "bg-white border-2 border-red-500"
+                          : "bg-white border border-gray-300"
                       }`}
                     >
                       <div className="flex items-center">
@@ -92,6 +117,31 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher }) => {
             ))}
           </div>
         )}
+
+        <div className="w-full mt-8">
+          {feedback ? (
+            <div className="bg-blue-50 p-4 rounded-md border border-blue-200 mb-4">
+              <h3 className="text-lg font-semibold mb-2">AI Feedback</h3>
+              
+                <ReactMarkdown >{feedback}</ReactMarkdown>
+              
+            </div>
+          ) : (
+            <button
+              onClick={generateAiFeedback}
+              disabled={isFeedbackLoading}
+              className={`w-full py-3 px-4 rounded-md text-white font-medium ${
+                isFeedbackLoading
+                  ? "bg-gray-400"
+                  : "bg-blue-600 hover:bg-blue-700"
+              } transition duration-200`}
+            >
+              {isFeedbackLoading
+                ? "Generating Feedback..."
+                : "Generate AI Feedback"}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

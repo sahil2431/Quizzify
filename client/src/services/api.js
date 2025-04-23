@@ -116,4 +116,14 @@ export const getUserQuizzes = async () => {
   }
 }
 
+export const getAIfeedback = async (questions, answers , quizCode) => {
+  try {
+    const response = await api.post('/quizzes/generate-feedback', { questions, answers , quizCode});
+    return response.data;
+  } catch (error) {
+    console.error('Error getting AI feedback:', error);
+    throw error;
+  }
+};
+
 export default api; 

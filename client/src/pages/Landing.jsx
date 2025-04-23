@@ -42,7 +42,7 @@ export default function Landing() {
       {/* Hero Section */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto py-4 px-6 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-indigo-600">QuizAI</h1>
+          <h1 className="text-2xl font-bold text-indigo-600">Quizzify</h1>
           <div className="space-x-4">
             <Link to="/login" className="px-4 py-2 text-indigo-600 hover:text-indigo-800 font-medium transition-colors duration-200">
               Login
@@ -125,7 +125,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-6 md:mb-0">
-              <h2 className="text-xl font-bold text-indigo-600">QuizAI</h2>
+              <h2 className="text-xl font-bold text-indigo-600">Quizzify</h2>
               <p className="text-gray-500">Elevate your learning with AI</p>
             </div>
             <div className="flex space-x-6">
