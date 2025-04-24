@@ -93,6 +93,7 @@ const QuizQuestion = ({
   useEffect(() => {
     console.log("QuizQuestion useEffect called: " , quizId)
     setSelectedOption(null);
+    setIsTimedOut(false);
   }, [currentQuestionIndex]);
 
   useEffect(() =>{
