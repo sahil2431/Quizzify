@@ -103,8 +103,8 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher , isAIQuiz }) => {
                       className={`p-3 rounded-md ${
                         option.isCorrect
                           ? "bg-green-100 border border-green-500"
-                          : userAnswers[index].optionId === option._id &&
-                            !userAnswers.isCorrect
+                          : userAnswers[index]?.optionId === option?._id &&
+                            !userAnswers?.isCorrect
                           ? "bg-white border-2 border-red-500"
                           : "bg-white border border-gray-300"
                       }`}
@@ -119,9 +119,9 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher , isAIQuiz }) => {
                         >
                           {String.fromCharCode(65 + index)}
                         </div>
-                        <span>{option.text}</span>
+                        <span>{option?.text}</span>
                       </div>
-                      {userAnswers[index].optionId === option._id && (
+                      {userAnswers[index]?.optionId === option._id && (
                         <span className="text-sm text-gray-500 ml-2">
                           Your answer
                         </span>
@@ -129,7 +129,7 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher , isAIQuiz }) => {
                     </div>
                   ))}
                 </div>
-                {userAnswers[index].optionId === -1 && (
+                {!userAnswers[index] || userAnswers[index]?.optionId === -1 && (
                   <span className="text-sm text-gray-500 ml-2">
                     You did not answer this question
                   </span>

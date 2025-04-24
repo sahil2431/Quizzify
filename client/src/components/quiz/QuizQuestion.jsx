@@ -84,6 +84,8 @@ const QuizQuestion = ({
       await update(
         ref(database, `quizzes/${quizId}/leaderboard/${currentUser.uid}`),
         {
+          displayName: currentUser.displayName,
+          photoURL: currentUser.photoURL,
           points: isCorrect ? increment(1) : increment(0),
         }
       );
@@ -99,8 +101,22 @@ const QuizQuestion = ({
   useEffect(() =>{
     setTimeProgress((timeLeft / durationPerQues) * 100);
     if (timeLeft <= 0) {
-      setIsTimedOut(true);
+      setIsTimedOut(true);  
     }
+
+    const setAnswer = async() => {
+      if(!isAIQuiz) {
+        await update(ref(database , `quizzes/${quizId}/answers/${currentUser.uid}/${currentQuestionIndex}`),{
+          optionId : -1,
+          isCorrect : false,
+        })
+      }
+    }
+
+    if(selectedOption === null && timeLeft <= 0) {
+      setAnswer()
+    }
+
   } , [timeLeft, durationPerQues]);
 
   return (
@@ -128,9 +144,9 @@ const QuizQuestion = ({
         <h2 className="text-xl font-bold mb-6">{question?.questionText}</h2>
 
         <div className="space-y-3">
-          {question.options.map((option, index) => (
+          {question?.options.map((option, index) => (
             <button
-              key={option._id}
+              key={option?._id}
               className={`w-full p-4 text-left rounded-lg border transition ${
                 selectedOption === index
                   ? "bg-blue-100 border-blue-500 ring-2 ring-blue-500"

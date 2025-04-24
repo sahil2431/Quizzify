@@ -32,14 +32,14 @@ const StudentQuiz = ({
       onValue(quizRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
-          setQuizStatus(data.status || "waiting");
-          setTotalNumberofQuestion(data.questions.length || 0);
-          setCurrentQuestionIndex(data.currentQuestionIndex || 0);
-          setDurationPerQues(data.durationPerQues);
-          setShowLeaderboard(data.leaderboard.showLeaderboard || false);
-          setTimeLeftCurrQues(data.timeLeftCurrQues || 0);
-          if (data.questions && typeof data.currentQuestionIndex === "number") {
-            setCurrentQuestion(data.questions[data.currentQuestionIndex]);
+          setQuizStatus(data?.status || "waiting");
+          setTotalNumberofQuestion(data?.questions?.length || 0);
+          setCurrentQuestionIndex(data?.currentQuestionIndex || 0);
+          setDurationPerQues(data?.durationPerQues);
+          setShowLeaderboard(data?.leaderboard?.showLeaderboard || false);
+          setTimeLeftCurrQues(data?.timeLeftCurrQues || 0);
+          if (data?.questions && typeof data?.currentQuestionIndex === "number") {
+            setCurrentQuestion(data?.questions[data?.currentQuestionIndex]);
           }
         }
       });
@@ -48,7 +48,7 @@ const StudentQuiz = ({
         off(quizRef);
       };
     } else if (isAIQuiz) {
-      setTotalNumberofQuestion(quiz.length || 0);
+      setTotalNumberofQuestion(quiz?.length || 0);
       setQuizStatus("started");
       setDurationPerQues(quiz?.durationPerQuestion || 30);
       setTimeLeftCurrQues(quiz?.durationPerQuestion || 30);
