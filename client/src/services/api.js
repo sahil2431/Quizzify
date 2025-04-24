@@ -18,7 +18,6 @@ api.interceptors.request.use(
       const token = await user.getIdToken();
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log('Authorization Header:', config.headers.Authorization);
     return config;
   },
   (error) => {
@@ -125,5 +124,16 @@ export const getAIfeedback = async (questions, answers , quizCode) => {
     throw error;
   }
 };
+
+export const genrateQuiz = async (data) => {
+  try {
+    const response = await api.post('/quizzes/generate-quiz', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error generating quiz:', error);
+    throw error;
+  }
+}
+
 
 export default api; 

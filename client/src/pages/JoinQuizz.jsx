@@ -6,9 +6,8 @@ const JoinQuizz = () => {
     const [showAIPopup, setShowAIPopup] = useState(false);
     const [joinCode, setJoinCode] = useState("");
     const [aiQuizParams, setAiQuizParams] = useState({
-        subject: "",
-        course: "",
-        difficulty: 5,
+        topic: "",
+        difficulty: "medium",
         numQuestions: 10
     });
     
@@ -98,89 +97,96 @@ const JoinQuizz = () => {
             {/* AI Quiz Popup */}
             {showAIPopup && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl mx-auto my-auto">
-                        <h2 className="text-xl font-bold mb-4">AI Generated Quiz</h2>
-                        <form onSubmit={handleAIQuizSubmit}>
-                            <div className="mb-4">
-                                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Subject
+                <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl mx-auto my-auto">
+                    <h2 className="text-xl font-bold mb-4">AI Generated Quiz</h2>
+                    <form onSubmit={handleAIQuizSubmit}>
+                        <div className="mb-4">
+                            <label htmlFor="topic" className="block text-sm font-medium text-gray-700 mb-1">
+                                Topic
+                            </label>
+                            <input
+                                type="text"
+                                id="topic"
+                                value={aiQuizParams.topic}
+                                onChange={(e) => setAiQuizParams({...aiQuizParams, topic: e.target.value})}
+                                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="e.g. Algebra, Quantum Physics, World War II"
+                                required
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700 mb-1">
+                                Difficulty
+                            </label>
+                            <div className="flex space-x-4">
+                                <label className="flex items-center">
+                                    <input
+                                        type="radio"
+                                        name="difficulty"
+                                        value="easy"
+                                        checked={aiQuizParams.difficulty === "easy"}
+                                        onChange={() => setAiQuizParams({...aiQuizParams, difficulty: "easy"})}
+                                        className="mr-2"
+                                    />
+                                    Easy
                                 </label>
-                                <input
-                                    type="text"
-                                    id="subject"
-                                    value={aiQuizParams.subject}
-                                    onChange={(e) => setAiQuizParams({...aiQuizParams, subject: e.target.value})}
-                                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="e.g. Mathematics, Physics, History"
-                                    required
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <label htmlFor="course" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Course
+                                <label className="flex items-center">
+                                    <input
+                                        type="radio"
+                                        name="difficulty"
+                                        value="medium"
+                                        checked={aiQuizParams.difficulty === "medium"}
+                                        onChange={() => setAiQuizParams({...aiQuizParams, difficulty: "medium"})}
+                                        className="mr-2"
+                                    />
+                                    Medium
                                 </label>
-                                <input
-                                    type="text"
-                                    id="course"
-                                    value={aiQuizParams.course}
-                                    onChange={(e) => setAiQuizParams({...aiQuizParams, course: e.target.value})}
-                                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="e.g. Algebra, Quantum Physics, World War II"
-                                    required
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Difficulty (1-10)
+                                <label className="flex items-center">
+                                    <input
+                                        type="radio"
+                                        name="difficulty"
+                                        value="hard"
+                                        checked={aiQuizParams.difficulty === "hard"}
+                                        onChange={() => setAiQuizParams({...aiQuizParams, difficulty: "hard"})}
+                                        className="mr-2"
+                                    />
+                                    Hard
                                 </label>
-                                <input
-                                    type="range"
-                                    id="difficulty"
-                                    min="1"
-                                    max="10"
-                                    value={aiQuizParams.difficulty}
-                                    onChange={(e) => setAiQuizParams({...aiQuizParams, difficulty: parseInt(e.target.value)})}
-                                    className="w-full"
-                                />
-                                <div className="flex justify-between text-xs text-gray-500">
-                                    <span>Easy</span>
-                                    <span>Current: {aiQuizParams.difficulty}</span>
-                                    <span>Hard</span>
-                                </div>
                             </div>
-                            <div className="mb-4">
-                                <label htmlFor="numQuestions" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Number of Questions
-                                </label>
-                                <input
-                                    type="number"
-                                    id="numQuestions"
-                                    min="1"
-                                    max="50"
-                                    value={aiQuizParams.numQuestions}
-                                    onChange={(e) => setAiQuizParams({...aiQuizParams, numQuestions: parseInt(e.target.value)})}
-                                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    required
-                                />
-                            </div>
-                            <div className="flex justify-end space-x-3">
-                                <button
-                                    type="button"
-                                    onClick={closeAllPopups}
-                                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                >
-                                    Generate Quiz
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+                        <div className="mb-4">
+                            <label htmlFor="numQuestions" className="block text-sm font-medium text-gray-700 mb-1">
+                                Number of Questions
+                            </label>
+                            <input
+                                type="number"
+                                id="numQuestions"
+                                min="1"
+                                max="50"
+                                value={aiQuizParams.numQuestions}
+                                onChange={(e) => setAiQuizParams({...aiQuizParams, numQuestions: parseInt(e.target.value)})}
+                                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                        </div>
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                type="button"
+                                onClick={closeAllPopups}
+                                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                            >
+                                Generate Quiz
+                            </button>
+                        </div>
+                    </form>
                 </div>
+            </div>
             )}
         </div>
     );

@@ -1,26 +1,41 @@
 import React, { useState, useEffect, use } from "react";
 import { database } from "../../firebase";
-import { get, ref } from "firebase/database";
+import { get, ref, set } from "firebase/database";
 import ReactMarkdown from 'react-markdown'
 import { getAIfeedback } from "../../services/api";
+import { data } from "react-router-dom";
 
-const QuizResults = ({ quizId, currentUser, onExit, isTeacher }) => {
+const QuizResults = ({ quizId, currentUser, onExit, isTeacher , isAIQuiz }) => {
   const [questions, setQuestions] = useState([]);
   const [userAnswers, setUserAnswers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [feedback, setFeedback] = useState(null);
   const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
+  const [totalScore, setTotalScore] = useState(0);
 
   useEffect(() => {
     const fetchQuizzData = async () => {
       setIsLoading(true);
-      const questionRef = ref(database, `quizzes/${quizId}/questions`);
+      let questionRef;
+      let userAnswersRef;
+      if(isAIQuiz) {
+        questionRef = ref(database, `aiQuiz/${currentUser.uid}/${quizId}/questions`);
+        userAnswersRef = ref(database, `aiQuiz/${currentUser.uid}/${quizId}/answers`);
+        const scoreRef = ref(database, `aiQuiz/${currentUser.uid}/${quizId}/points`);
+        const scoreSnapshot = await get(scoreRef);
+        const scoreData = scoreSnapshot.val()
+        console.log("scoreData", scoreData)
+        setTotalScore(scoreData);
+      }else {
+        questionRef = ref(database, `quizzes/${quizId}/questions`);
+        userAnswersRef = ref(database , `quizzes/${quizId}/answers/${currentUser.uid}`);
+        const scoreRef = ref(database, `quizzes/${quizId}/leaderboard/${currentUser.uid}`);
+        const scoreSnapshot = await get(scoreRef);
+        const scoreData = scoreSnapshot.val()
+        setTotalScore(scoreData.points);
+      }
       const questionSnapshot = await get(questionRef);
       const questionData = questionSnapshot.val() || {};
-      const userAnswersRef = ref(
-        database,
-        `quizzes/${quizId}/answers/${currentUser.uid}`
-      );
       const userAnswersSnapshot = await get(userAnswersRef);
       const userAnswersData = userAnswersSnapshot.val() || {};
       const questionsArray = Object.values(questionData);
@@ -68,22 +83,23 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher }) => {
         <div>
           <h1 className="text-2xl font-bold">{"Quiz Results"}</h1>
           <p className="text-gray-600">Quiz ID: {quizId}</p>
+          <p className="text-gray-600">Score : {totalScore}</p>
         </div>
 
         {!isLoading && questions.length > 0 && (
           <div>
             {questions.map((question, index) => (
               <div
-                key={question._id}
+                key={index}
                 className="bg-gray-50 p-4 rounded-md mb-4"
               >
                 <p className="text-lg font-medium mb-3">
                   {question?.questionText}
                 </p>
                 <div className="grid grid-cols-1 gap-2">
-                  {question?.options.map((option) => (
+                  {question?.options.map((option , i) => (
                     <div
-                      key={option._id}
+                      key={i}
                       className={`p-3 rounded-md ${
                         option.isCorrect
                           ? "bg-green-100 border border-green-500"
@@ -113,6 +129,11 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher }) => {
                     </div>
                   ))}
                 </div>
+                {userAnswers[index].optionId === -1 && (
+                  <span className="text-sm text-gray-500 ml-2">
+                    You did not answer this question
+                  </span>
+                )}
               </div>
             ))}
           </div>

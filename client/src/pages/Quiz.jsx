@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { ref, onValue, set, update, get } from "firebase/database";
+import { ref, set, update, get } from "firebase/database";
 import { database } from "../firebase";
-import { saveQuizAttempt, getQuizByCode } from "../services/api";
+import { saveQuizAttempt, getQuizByCode, genrateQuiz } from "../services/api";
 import TeacherQuiz from "../components/quiz/TeacherQuiz";
 import StudentQuiz from "../components/quiz/StudentQuiz";
 
 const QuizPage = () => {
-  const { quizId } = useParams();
+  let { quizId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, userProfile } = useAuth();
-  const isAIQuiz = quizId === "ai";
+  const isAIQuiz = quizId === undefined || quizId === "ai";
   const isTeacher = userProfile?.role === "teacher";
 
   // State variables
   const [quiz, setQuiz] = useState(null);
+  const [quizIDState, setQuizIdState] = useState(quizId);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [quizStatus, setQuizStatus] = useState("waiting"); // waiting, active, completed
@@ -31,7 +32,32 @@ const QuizPage = () => {
       try {
         if (isAIQuiz) {
           //Set Ai quizz
+          const quizData = location.state;
+          if (!quizData) {
+            setError("No quiz data found. Please try again.");
+            setLoading(false);
+            return;
+          }
+
+          const response = await genrateQuiz({
+            topic: quizData.topic,
+            numberOfQuestions: quizData.numQuestions,
+            difficulty: quizData.difficulty,
+          });
+          const aiQuizId = 'ai-' + Math.random().toString(36).substring(2, 10);
+          quizId = aiQuizId;
+          setQuizIdState(aiQuizId);
           
+          setQuiz(response.quizData);
+          setQuizStatus("started");
+          setDurationPerQues(10);
+          setLoading(false);
+          await set(ref(database , `aiQuiz/${currentUser.uid}/${quizId}`) , {
+            quizId : quizId,
+            questions : response.quizData,
+            currentQuestionIndex : 0,
+            points : 0,
+          })
         } else {
           try {
             const response = await getQuizByCode(quizId);
@@ -183,7 +209,7 @@ const QuizPage = () => {
     return (
       <StudentQuiz
         quiz={quiz}
-        quizId={quizId}
+        quizId={quizIDState}
         currentUser={currentUser}
         isAIQuiz={isAIQuiz}
         quizStartTime={quizStartTime}

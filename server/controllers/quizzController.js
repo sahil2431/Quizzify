@@ -1,38 +1,7 @@
 import FeedBack from "../models/Feedback.js";
 import Quiz from "../models/Quiz.js";
 import { generateFeedback } from "../services/geminiService.js";
-import { generateQuestions } from './giminiservice';
-
-function separateQuizData(quizText) {
-  // Regular expression to match each question and its answer options
-  const questionRegex = /(\d+)\.\s*(.*?)\s*(a\))\s*(.*?)\s*(b\))\s*(.*?)\s*(c\))\s*(.*?)\s*(d\))\s*(.*?)\s*\*\*Correct Answer: (.*?)\*\*/gs;
-
-  let questions = [];
-  let answers = [];
-
-  let match;
-  while ((match = questionRegex.exec(quizText)) !== null) {
-    const question = match[2].trim();
-    const options = [
-      match[4].trim(), // option a
-      match[6].trim(), // option b
-      match[8].trim(), // option c
-      match[10].trim() // option d
-    ];
-    const correctAnswer = match[11].trim();
-
-    // Store the question and options in the questions array
-    questions.push({
-      questionText: question,
-      options: options
-    });
-
-    // Store the correct answer in the answers array
-    answers.push(correctAnswer);
-  }
-
-  return { questions, answers };
-}
+import { generateQuestions } from '../services/geminiService.js';
 
 export const getQuizzByCode = async (req, res) => {
   const accessCode = req.params.code;
@@ -90,26 +59,30 @@ export const getQuizzesOfUser = async (req, res) => {
   }
 };
 
-async function fetchQuizQuestions() {
+export const generateQuiz = async(req , res) =>{
   try {
-    const topic = "Ancient Egypt";
-    const numberOfQuestions = 10;
-    const difficulty = "hard";
+    const { topic, numberOfQuestions, difficulty } = req.body;
+    console.log("Received data:", req.body);
+
+    if (!topic || !numberOfQuestions || !difficulty) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
     const quizData = await generateQuestions(topic, numberOfQuestions, difficulty);
 
     if (quizData && !quizData.error) {
       console.log("Generated Quiz Questions:", quizData);
-      // Use the quizData to populate your quiz interface
+      return res.status(200).json({ status: true, quizData });
     } else {
       console.error("Failed to fetch quiz questions:", quizData.error);
-      // Handle the error appropriately
+      return res.status(500).json({ error: 'Failed to fetch quiz questions' });
     }
+    
   } catch (error) {
     console.error("An unexpected error occurred:", error);
+    return res.status(500).json({ error: 'An unexpected error occurred' });
   }
 }
 
-fetchQuizQuestions();
 
 export const getAifeedback = async (req, res) => {
   try {
@@ -132,6 +105,10 @@ export const getAifeedback = async (req, res) => {
     for (let i = 0; i < questions.length; i++) {
 
       const studentAnswer = questions[i].options.find(option => {
+        if(answers[i].optionId === -1) {
+          return "not answered"
+        }
+        
         if (option._id === answers[i].optionId) {
           return option.text;
         }

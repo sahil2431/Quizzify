@@ -4,64 +4,102 @@ import { database } from "../../firebase";
 import { useAuth } from "../../contexts/AuthContext";
 
 const QuizQuestion = ({
+  isAIQuiz,
   currentQuestionIndex,
   question,
   questionNumber,
   totalQuestions,
   durationPerQues,
   timeLeft,
-  onExit,
   quizId,
+  setTimeLeft,
 }) => {
   const { currentUser, userProfile } = useAuth();
   const [selectedOption, setSelectedOption] = useState(null);
   const [isTimedOut, setIsTimedOut] = useState(false);
-  const [timeProgress, setTimeProgress] = useState(100);
+  const [timeProgress, setTimeProgress] = useState(100); 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
- 
+  const handleNextQuestion = async() => {
+    if(selectedOption === null) {
+      await update(ref(database , (`aiQuiz/${currentUser.uid}/${quizId}/answers/${currentQuestionIndex}`)) , {
+        optionId : -1,
+        isCorrect : false,
+      })
+    }
+
+    if(currentQuestionIndex + 1 === totalQuestions) {
+      await update(ref(database , (`aiQuiz/${currentUser.uid}/${quizId}`)) , {
+        status : "completed"
+      })
+
+      return
+    }
+    await update(ref(database , (`aiQuiz/${currentUser.uid}/${quizId}`)) , {
+      currentQuestionIndex : increment(1)
+    })
+    setSelectedOption(null)
+    setIsTimedOut(false);
+    setTimeLeft(30)
+
+  } 
   const handleSelection = async (index) => {
     setSelectedOption(index);
-    const questionRef = ref(
-      database,
-      `quizzes/${quizId}/questions/${currentQuestionIndex}`
-    );
-    const question = await get(questionRef);
-    const questionData = question.val();
-    console.log(questionData);
-    const isCorrect = questionData.options[index].isCorrect;
-    const optionId = questionData.options[index]._id;
+    if(isAIQuiz) {
+      await update(ref(database , `aiQuiz/${currentUser.uid}/${quizId}/answers/${currentQuestionIndex}`) , {
+        optionId : question.options[index]._id,
+        isCorrect : question.options[index].isCorrect,
+      })
+      await update(ref(database , `aiQuiz/${currentUser.uid}/${quizId}`) , {
+        points : question.options[index].isCorrect ? increment(1) : increment(0)
+      })
+    }
+    else {
 
-    await set(
-      ref(
+      const questionRef = ref(
         database,
-        `quizzes/${quizId}/answers/${currentUser.uid}/${currentQuestionIndex}`
-      ),
-      {
-        optionId: optionId,
-        isCorrect: isCorrect,
-      }
-    );
-
-    await update(
-      ref(database, `quizzes/${quizId}/leaderboard/${currentUser.uid}`),
-      {
-        points: isCorrect ? increment(1) : increment(0),
-      }
-    );
+        `quizzes/${quizId}/questions/${currentQuestionIndex}`
+      );
+      const question = await get(questionRef);
+      const questionData = question.val();
+      console.log(questionData);
+      const isCorrect = questionData.options[index].isCorrect;
+      const optionId = questionData.options[index]._id;
+  
+      await set(
+        ref(
+          database,
+          `quizzes/${quizId}/answers/${currentUser.uid}/${currentQuestionIndex}`
+        ),
+        {
+          optionId: optionId,
+          isCorrect: isCorrect,
+        }
+      );
+  
+      await update(
+        ref(database, `quizzes/${quizId}/leaderboard/${currentUser.uid}`),
+        {
+          points: isCorrect ? increment(1) : increment(0),
+        }
+      );
+    }
   };
 
   useEffect(() => {
+    console.log("QuizQuestion useEffect called: " , quizId)
     setSelectedOption(null);
   }, [currentQuestionIndex]);
 
   useEffect(() =>{
     setTimeProgress((timeLeft / durationPerQues) * 100);
-
+    if (timeLeft <= 0) {
+      setIsTimedOut(true);
+    }
   } , [timeLeft, durationPerQues]);
 
   return (
@@ -86,7 +124,7 @@ const QuizQuestion = ({
       </div>
 
       <div className="mb-8">
-        <h2 className="text-xl font-bold mb-6">{question.questionText}</h2>
+        <h2 className="text-xl font-bold mb-6">{question?.questionText}</h2>
 
         <div className="space-y-3">
           {question.options.map((option, index) => (
@@ -118,12 +156,19 @@ const QuizQuestion = ({
       </div>
 
       <div className="flex justify-between items-center">
-        <button
-          onClick={onExit}
-          className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-        >
-          Exit Quiz
-        </button>
+      {isAIQuiz && (
+          <button
+            className={`px-4 py-2 font-medium rounded-lg transition-colors ${isTimedOut ||
+              selectedOption !== null
+                ? "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+            disabled={!isTimedOut && selectedOption === null}
+            onClick={handleNextQuestion}
+          >
+            {currentQuestionIndex + 1 === totalQuestions ? "Finish Quiz" : "Next Question"}
+          </button>
+        )}
 
         {selectedOption !== null && (
           <div className="text-green-600 font-medium">Answer submitted</div>
