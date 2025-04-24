@@ -1,11 +1,11 @@
 import React, { useState, useEffect, use } from "react";
 import { database } from "../../firebase";
 import { get, ref, set } from "firebase/database";
-import ReactMarkdown from 'react-markdown'
+import ReactMarkdown from "react-markdown";
 import { getAIfeedback } from "../../services/api";
 import { data } from "react-router-dom";
 
-const QuizResults = ({ quizId, currentUser, onExit, isTeacher , isAIQuiz }) => {
+const QuizResults = ({ quizId, currentUser, onExit, isTeacher, isAIQuiz }) => {
   const [questions, setQuestions] = useState([]);
   const [userAnswers, setUserAnswers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -18,20 +18,35 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher , isAIQuiz }) => {
       setIsLoading(true);
       let questionRef;
       let userAnswersRef;
-      if(isAIQuiz) {
-        questionRef = ref(database, `aiQuiz/${currentUser.uid}/${quizId}/questions`);
-        userAnswersRef = ref(database, `aiQuiz/${currentUser.uid}/${quizId}/answers`);
-        const scoreRef = ref(database, `aiQuiz/${currentUser.uid}/${quizId}/points`);
+      if (isAIQuiz) {
+        questionRef = ref(
+          database,
+          `aiQuiz/${currentUser.uid}/${quizId}/questions`
+        );
+        userAnswersRef = ref(
+          database,
+          `aiQuiz/${currentUser.uid}/${quizId}/answers`
+        );
+        const scoreRef = ref(
+          database,
+          `aiQuiz/${currentUser.uid}/${quizId}/points`
+        );
         const scoreSnapshot = await get(scoreRef);
-        const scoreData = scoreSnapshot.val()
-        console.log("scoreData", scoreData)
+        const scoreData = scoreSnapshot.val();
+        console.log("scoreData", scoreData);
         setTotalScore(scoreData);
-      }else {
+      } else {
         questionRef = ref(database, `quizzes/${quizId}/questions`);
-        userAnswersRef = ref(database , `quizzes/${quizId}/answers/${currentUser.uid}`);
-        const scoreRef = ref(database, `quizzes/${quizId}/leaderboard/${currentUser.uid}`);
+        userAnswersRef = ref(
+          database,
+          `quizzes/${quizId}/answers/${currentUser.uid}`
+        );
+        const scoreRef = ref(
+          database,
+          `quizzes/${quizId}/leaderboard/${currentUser.uid}`
+        );
         const scoreSnapshot = await get(scoreRef);
-        const scoreData = scoreSnapshot.val()
+        const scoreData = scoreSnapshot.val();
         setTotalScore(scoreData.points);
       }
       const questionSnapshot = await get(questionRef);
@@ -39,7 +54,23 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher , isAIQuiz }) => {
       const userAnswersSnapshot = await get(userAnswersRef);
       const userAnswersData = userAnswersSnapshot.val() || {};
       const questionsArray = Object.values(questionData);
-      const userAnswersArray = Object.values(userAnswersData);
+      let userAnswersArray = Object.values(userAnswersData);
+      console.log("questionsArray", questionsArray);
+      console.log("userAnswersArray", userAnswersArray);
+      if (questionsArray.length !== userAnswersArray.length) {
+        const missingAnswersCount =
+          questionsArray.length - userAnswersArray.length;
+        let placeholderAnswers = [];
+
+        for (let i = 0; i < missingAnswersCount; i++) {
+          placeholderAnswers.push({
+            optionId: -1,
+            isCorrect: false,
+          });
+        }
+        userAnswersArray = [...placeholderAnswers, ...userAnswersArray];
+      }
+
       setQuestions(questionsArray);
       setUserAnswers(userAnswersArray);
     };
@@ -48,6 +79,8 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher , isAIQuiz }) => {
 
   useEffect(() => {
     if (questions.length > 0 && userAnswers.length > 0) {
+      if (userAnswers.length !== questions.length) {
+      }
       setIsLoading(false);
     }
   }, [questions, userAnswers]);
@@ -55,23 +88,22 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher , isAIQuiz }) => {
   const generateAiFeedback = async () => {
     setIsFeedbackLoading(true);
     try {
-      const response = await getAIfeedback(questions, userAnswers , quizId);
+      const response = await getAIfeedback(questions, userAnswers, quizId);
       if (response) {
         setFeedback(response.feedback);
       } else {
         setFeedback("No feedback available.");
       }
-      
     } catch (error) {
       console.error("Error generating AI feedback:", error);
-      setFeedback("Error getting feedback")
+      setFeedback("Error getting feedback");
       setTimeout(() => {
-        setFeedback('')
-      }, 5000)
-    }finally {
+        setFeedback("");
+      }, 5000);
+    } finally {
       setIsFeedbackLoading(false);
     }
-  }
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -89,15 +121,15 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher , isAIQuiz }) => {
         {!isLoading && questions.length > 0 && (
           <div>
             {questions.map((question, index) => (
-              <div
-                key={index}
-                className="bg-gray-50 p-4 rounded-md mb-4"
-              >
-                <p className="text-lg font-medium mb-3">
-                  {question?.questionText}
-                </p>
+              <div key={index} className="bg-gray-50 p-4 rounded-md mb-4">
+                <div className="flex items-center gap-2">
+                  <p className="text-lg font-medium mb-3">Q {index + 1}:</p>
+                  <p className="text-lg font-medium mb-3">
+                    {question?.questionText}
+                  </p>
+                </div>
                 <div className="grid grid-cols-1 gap-2">
-                  {question?.options.map((option , i) => (
+                  {question?.options.map((option, i) => (
                     <div
                       key={i}
                       className={`p-3 rounded-md ${
@@ -117,7 +149,7 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher , isAIQuiz }) => {
                               : "bg-gray-200 text-gray-700"
                           }`}
                         >
-                          {String.fromCharCode(65 + index)}
+                          {String.fromCharCode(65 + i)}
                         </div>
                         <span>{option?.text}</span>
                       </div>
@@ -129,11 +161,12 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher , isAIQuiz }) => {
                     </div>
                   ))}
                 </div>
-                {!userAnswers[index] || userAnswers[index]?.optionId === -1 && (
-                  <span className="text-sm text-gray-500 ml-2">
-                    You did not answer this question
-                  </span>
-                )}
+                {!userAnswers[index] ||
+                  (userAnswers[index]?.optionId === -1 && (
+                    <span className="text-sm text-gray-500 ml-2">
+                      You did not answer this question
+                    </span>
+                  ))}
               </div>
             ))}
           </div>
@@ -143,9 +176,8 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher , isAIQuiz }) => {
           {feedback ? (
             <div className="bg-blue-50 p-4 rounded-md border border-blue-200 mb-4">
               <h3 className="text-lg font-semibold mb-2">AI Feedback</h3>
-              
-                <ReactMarkdown >{feedback}</ReactMarkdown>
-              
+
+              <ReactMarkdown>{feedback}</ReactMarkdown>
             </div>
           ) : (
             <button
