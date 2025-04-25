@@ -18,6 +18,7 @@ const QuizQuestion = ({
   const [selectedOption, setSelectedOption] = useState(null);
   const [isTimedOut, setIsTimedOut] = useState(false);
   const [timeProgress, setTimeProgress] = useState(100); 
+  const [isLoading, setIsLoading] = useState(false);
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -25,6 +26,7 @@ const QuizQuestion = ({
   };
 
   const handleNextQuestion = async() => {
+    setIsLoading(true);
     if(selectedOption === null) {
       await update(ref(database , (`aiQuiz/${currentUser.uid}/${quizId}/answers/${currentQuestionIndex}`)) , {
         optionId : -1,
@@ -45,7 +47,7 @@ const QuizQuestion = ({
     setSelectedOption(null)
     setIsTimedOut(false);
     setTimeLeft(30)
-
+    setTimeout(() => {setIsLoading(false)}, 1000);
   } 
   const handleSelection = async (index) => {
     setSelectedOption(index);
@@ -118,6 +120,17 @@ const QuizQuestion = ({
     }
 
   } , [timeLeft, durationPerQues]);
+
+  if (isLoading ) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 bg-white rounded-lg shadow-md">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+        <p className="text-lg font-medium text-gray-700">
+          Loading next question...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">

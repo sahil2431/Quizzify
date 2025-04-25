@@ -11,6 +11,7 @@ const TeacherQuiz = ({ quiz, quizId, quizStatus , durationPerQues }) => {
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [participants, setParticipants] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   // Start quiz handler for teachers
   const handleStartQuiz = () => {
@@ -39,6 +40,7 @@ const TeacherQuiz = ({ quiz, quizId, quizStatus , durationPerQues }) => {
 
   // Next question handler for teachers
   const handleNextQuestion = async () => {
+    setIsLoading(true);
     const quizRef = ref(database, `quizzes/${quizId}`);
     const quizSnapshot = await get(quizRef);
     const quizData = quizSnapshot.val();
@@ -61,6 +63,7 @@ const TeacherQuiz = ({ quiz, quizId, quizStatus , durationPerQues }) => {
         })
       }
     }
+    setTimeout(() => setIsLoading(false), 1000);
   };
 
   // Exit quiz handler
@@ -120,6 +123,17 @@ const TeacherQuiz = ({ quiz, quizId, quizStatus , durationPerQues }) => {
   useEffect(() => {
     setTimeProgress((timeLeft / quiz?.durationPerQuestion) * 100);
   }, [timeLeft]);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 bg-white rounded-lg shadow-md">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+        <p className="text-lg font-medium text-gray-700">
+          Loading next question...
+        </p>
+      </div>
+    );
+  }
 
   if (quizStatus === "waiting") {
     // Teacher waiting room with controls

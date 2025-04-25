@@ -10,7 +10,7 @@ function cleanJsonString(raw) {
 }
 
 export const generateFeedback = async (questions, answers) => {
-  let prompt = `You are a teacher. Please provide feedback on the following answers to the questions asked. The feedback should be in the form of a list of suggestions for improvement, and should be no more than 500 words long. The feedback should contain what the student did well, what they could improve on, and any other relevant information.\n\n`;
+  let prompt = `You are a teacher. Please provide feedback on the following answers to the questions asked. The feedback should be in the form of a list of suggestions for improvement, and should be no more than 500 words long. The feedback should contain what the student did well, what they could improve on, and any other relevant information. Remember it is an MCQ quiz hence one word answer is correct(as it was in the option).\n\n`;
 
   questions.map((question, index) => {
     prompt += `${index + 1}: ${question.questionText}\n`;

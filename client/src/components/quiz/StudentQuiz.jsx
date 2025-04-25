@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , useRef} from "react";
 import { useNavigate } from "react-router-dom";
 import { ref, onValue, set, off } from "firebase/database";
 import { database } from "../../firebase";
@@ -23,6 +23,11 @@ const StudentQuiz = ({
   const [totalNumberofQuestion, setTotalNumberofQuestion] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [durationPerQues, setDurationPerQues] = useState(30);
+  const [isLoading, setIsLoading] = useState(false);
+  const questionTrackerRef = useRef({
+    lastSeenIndex: null,
+    isFirstLoad: true
+  });
 
   // For AI quizzes only
   useEffect(() => {
@@ -31,15 +36,38 @@ const StudentQuiz = ({
 
       onValue(quizRef, (snapshot) => {
         const data = snapshot.val();
+
         if (data) {
+          const newQuestionIndex = data.currentQuestionIndex || 0;
+          if (!questionTrackerRef.current.isFirstLoad && 
+            newQuestionIndex !== questionTrackerRef.current.lastSeenIndex) {
+          console.log(
+            "Question changed from",
+            questionTrackerRef.current.lastSeenIndex,
+            "to",
+            newQuestionIndex
+          );
+          setIsLoading(true);
+        }
+
+        questionTrackerRef.current.lastSeenIndex = newQuestionIndex;
+          
+          // First load completed
+          if (questionTrackerRef.current.isFirstLoad) {
+            questionTrackerRef.current.isFirstLoad = false;
+          }
           setQuizStatus(data?.status || "waiting");
           setTotalNumberofQuestion(data?.questions?.length || 0);
           setCurrentQuestionIndex(data?.currentQuestionIndex || 0);
           setDurationPerQues(data?.durationPerQues);
           setShowLeaderboard(data?.leaderboard?.showLeaderboard || false);
           setTimeLeftCurrQues(data?.timeLeftCurrQues || 0);
-          if (data?.questions && typeof data?.currentQuestionIndex === "number") {
+          if (
+            data?.questions &&
+            typeof data?.currentQuestionIndex === "number"
+          ) {
             setCurrentQuestion(data?.questions[data?.currentQuestionIndex]);
+            setTimeout(() => setIsLoading(false), 800);
           }
         }
       });
@@ -53,14 +81,17 @@ const StudentQuiz = ({
       setDurationPerQues(quiz?.durationPerQuestion || 30);
       setTimeLeftCurrQues(quiz?.durationPerQuestion || 30);
 
-      onValue(ref(database, `aiQuiz/${currentUser.uid}/${quizId}`), (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          setCurrentQuestionIndex(data.currentQuestionIndex || 0);
-          setCurrentQuestion(data.questions[data.currentQuestionIndex]);
-          setQuizStatus(data.status || "started");
+      onValue(
+        ref(database, `aiQuiz/${currentUser.uid}/${quizId}`),
+        (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            setCurrentQuestionIndex(data.currentQuestionIndex || 0);
+            setCurrentQuestion(data.questions[data.currentQuestionIndex]);
+            setQuizStatus(data.status || "started");
+          }
         }
-      });
+      );
     }
   }, [quizId, isAIQuiz]);
 
@@ -127,6 +158,17 @@ const StudentQuiz = ({
         currentUser={currentUser}
         isTeacher={false}
       />
+    );
+  }
+
+  if (isLoading && quizStatus === "started") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 bg-white rounded-lg shadow-md">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+        <p className="text-lg font-medium text-gray-700">
+          Loading next question...
+        </p>
+      </div>
     );
   }
 
