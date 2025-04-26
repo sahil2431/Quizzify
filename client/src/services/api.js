@@ -45,6 +45,18 @@ export const updateUserProfile = async (data) => {
   }
 };
 
+export const getStudentQuizzData = async () => {
+  try {
+    const response = await api.get('/leaderboard/get');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user quiz data:', error);
+    throw error;
+    
+  }
+}
+
+
 export const verifyToken = async () => {
   try {
     const response = await api.get('/auth/verify-token');
@@ -72,21 +84,6 @@ export const registerUser = async (userData) => {
     return response.data;
   } catch (error) {
     console.error('Error registering user:', error);
-    throw error;
-  }
-};
-
-export const saveQuizAttempt = async (quizId, answers, totalScore, isAIGenerated = false) => {
-  try {
-    const response = await api.post('/quiz-attempts', {
-      quizId,
-      answers,
-      totalScore,
-      isAIGenerated
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error saving quiz attempt:', error);
     throw error;
   }
 };
@@ -135,5 +132,15 @@ export const genrateQuiz = async (data) => {
   }
 }
 
+export const saveStudentQuizAttempt = async (data) => {
+  try {
+    const response = await api.post('/leaderboard/save', data);
+    return response.data;
+  } catch (error) {
+    console.log('Error saving student quiz attempt:', error);
+    throw error;
+    
+  }
+}
 
 export default api; 

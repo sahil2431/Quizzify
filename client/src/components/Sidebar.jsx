@@ -98,27 +98,11 @@ const Sidebar = ({ className, onToggle }) => {
                   {isOpen && <span className="ml-3 truncate">Join Quizz</span>}
                 </Link>
               </li>
-              <li>
-                <Link 
-                  to="/given-quizzes" 
-                  className={`flex items-center p-3 rounded-lg hover:bg-indigo-800 transition-colors ${isActive('/given-quizzes')}`}
-                >
-                  <FaHistory className="w-5 h-5 flex-shrink-0" />
-                  {isOpen && <span className="ml-3 truncate">Given Quizzes</span>}
-                </Link>
-              </li>
+              
             </>
           ) : userProfile?.role === 'teacher' ? (
             <>
-              <li>
-                <Link 
-                  to="/host-quiz" 
-                  className={`flex items-center p-3 rounded-lg hover:bg-indigo-800 transition-colors ${isActive('/host-quiz')}`}
-                >
-                  <FaPlusCircle className="w-5 h-5 flex-shrink-0" />
-                  {isOpen && <span className="ml-3 truncate">Host New Quiz</span>}
-                </Link>
-              </li>
+              
               <li>
                 <Link 
                   to="/my-quizzes" 

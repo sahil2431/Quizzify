@@ -3,7 +3,7 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { ref, set, update, get } from "firebase/database";
 import { database } from "../firebase";
-import { saveQuizAttempt, getQuizByCode, genrateQuiz } from "../services/api";
+import {  getQuizByCode, genrateQuiz } from "../services/api";
 import TeacherQuiz from "../components/quiz/TeacherQuiz";
 import StudentQuiz from "../components/quiz/StudentQuiz";
 
@@ -23,7 +23,6 @@ const QuizPage = () => {
   const [quizStatus, setQuizStatus] = useState("waiting"); // waiting, active, completed
   const [quizStartTime, setQuizStartTime] = useState(null);
   const [userAnswers, setUserAnswers] = useState([]);
-  const [savedToMongoDB, setSavedToMongoDB] = useState(false);
   const [durationPerQues , setDurationPerQues] = useState(30);
 
   // Fetch quiz data or set AI quiz data
@@ -142,34 +141,7 @@ const QuizPage = () => {
 
   
 
-  // Save quiz results to MongoDB when completed
-  useEffect(() => {
-    const saveQuizResults = async () => {
-      if (quizStatus === "completed" && !savedToMongoDB) {
-        try {
-          // Calculate total score
-          const totalScore = userAnswers.reduce(
-            (sum, answer) => (answer.isCorrect ? sum + 1 : sum),
-            0
-          );
-
-          // Save to MongoDB via API
-          await saveQuizAttempt(
-            isAIQuiz ? "ai-generated" : quizId,
-            userAnswers,
-            totalScore,
-            isAIQuiz
-          );
-
-          setSavedToMongoDB(true);
-        } catch (err) {
-          console.error("Failed to save quiz results:", err);
-        }
-      }
-    };
-
-    saveQuizResults();
-  }, [quizStatus, userAnswers, quizId, isAIQuiz, savedToMongoDB]);
+  
 
   // Render based on loading/error state
   if (loading) {

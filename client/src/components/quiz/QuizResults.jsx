@@ -2,16 +2,21 @@ import React, { useState, useEffect, use } from "react";
 import { database } from "../../firebase";
 import { get, ref, set } from "firebase/database";
 import ReactMarkdown from "react-markdown";
-import { getAIfeedback } from "../../services/api";
-import { data } from "react-router-dom";
+import { getAIfeedback, saveStudentQuizAttempt } from "../../services/api";
+import { useNavigate } from "react-router-dom";
 
-const QuizResults = ({ quizId, currentUser, onExit, isTeacher, isAIQuiz }) => {
+const QuizResults = ({ quizId, currentUser, isTeacher, isAIQuiz }) => {
   const [questions, setQuestions] = useState([]);
   const [userAnswers, setUserAnswers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [feedback, setFeedback] = useState(null);
   const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
+  const navigate = useNavigate()
+
+  const onExit = () => {
+    navigate("/dashboard")
+  }
 
   useEffect(() => {
     const fetchQuizzData = async () => {
@@ -78,11 +83,24 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher, isAIQuiz }) => {
   }, [quizId, currentUser.uid]);
 
   useEffect(() => {
-    if (questions.length > 0 && userAnswers.length > 0) {
-      if (userAnswers.length !== questions.length) {
+    const saveQuiz = async () => {
+      if (questions.length > 0 && userAnswers.length > 0) {
+        setIsLoading(false);
+        const response = await saveStudentQuizAttempt({
+          quizCode : quizId,
+          studentName: currentUser.displayName,
+          photoURL: currentUser?.photoURL,
+          maxScore: questions.length,
+          score: totalScore,
+        })
+        if (response) {
+          console.log("Quiz saved successfully:", response);
+        } else {
+          console.error("Error saving quiz data");
+        }
       }
-      setIsLoading(false);
     }
+    saveQuiz();
   }, [questions, userAnswers]);
 
   const generateAiFeedback = async () => {
@@ -195,6 +213,14 @@ const QuizResults = ({ quizId, currentUser, onExit, isTeacher, isAIQuiz }) => {
             </button>
           )}
         </div>
+        <div className="w-full mt-4">
+          <button
+            onClick={onExit}
+            className="w-full py-3 px-4 rounded-md bg-red-600 text-white font-medium hover:bg-red-700 transition duration-200"
+          >
+            Exit Quiz
+          </button>
+          </div>
       </div>
     </div>
   );

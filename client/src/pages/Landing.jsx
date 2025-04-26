@@ -73,11 +73,13 @@ export default function Landing() {
           </div>
           
           {/* Hero Image */}
-          <div className="mt-16 max-w-4xl w-full bg-white p-4 rounded-xl shadow-lg animate-fadeIn" style={{ animationDelay: '300ms' }}>
-            <div className="aspect-video w-full bg-indigo-100 rounded-lg flex items-center justify-center">
-              <div className="text-indigo-300 text-lg">
-                Platform Screenshot
-              </div>
+          <div className="mt-16 max-w-5xl w-full bg-white p-4 rounded-xl shadow-lg animate-fadeIn" style={{ animationDelay: '300ms' }}>
+            <div className="w-full rounded-lg overflow-hidden">
+              <img 
+                src="/platform.png" 
+                alt="Quizzify platform interface" 
+                className="w-full h-auto object-contain"
+              />
             </div>
           </div>
         </section>

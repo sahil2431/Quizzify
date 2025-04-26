@@ -112,13 +112,11 @@ const StudentQuiz = ({
   }, [isAIQuiz, currentQuestionIndex]);
 
   // Exit quiz handler
-  const handleExitQuiz = () => {
-    //navigate("/dashboard");
-  };
+
 
   if (quizStatus === "waiting") {
     return (
-      <WaitingRoom quiz={quiz} quizCode={quizId} onExit={handleExitQuiz} />
+      <WaitingRoom quiz={quiz} quizCode={quizId} onExit={() => navigate("/dashboard")} />
     );
   }
 
@@ -140,7 +138,6 @@ const StudentQuiz = ({
         <QuizResults
           quizId={quizId}
           currentUser={currentUser}
-          onExit={handleExitQuiz}
           isTeacher={false}
           isAIQuiz={isAIQuiz}
         />
@@ -180,7 +177,6 @@ const StudentQuiz = ({
       totalQuestions={totalNumberofQuestion}
       durationPerQues={durationPerQues}
       timeLeft={timeLeftCurrQues}
-      onExit={handleExitQuiz}
       currentQuestionIndex={currentQuestionIndex}
       quizId={quizId}
       setTimeLeft={setTimeLeftCurrQues}
