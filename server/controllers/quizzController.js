@@ -103,24 +103,8 @@ export const generateQuiz = async(req , res) =>{
       return res.status(400).json({ error: 'All fields are required' });
     }
     
-    //const quizData = await generateQuestions(topic, numberOfQuestions, difficulty);
-    const quizData = [
-  {
-    questionText: 'Which of the following is NOT a fundamental data type in C++?',
-    options: [ {_id : 1 , text : "int" , isCorrect : false} , {_id : 1 , text : "int" , isCorrect : false} , {_id : 1 , text : "int" , isCorrect : false} , {_id : 1 , text : "int" , isCorrect : false} ],
-    explanation: "The 'string' data type is part of the C++ Standard Template Library (STL), not a fundamental built-in type.  int, float, and bool are fundamental types."
-  },
-  {
-    questionText: 'What keyword is used to declare a constant variable in C++?',
-    options: [  {_id : 1 , text : "int" , isCorrect : false} , {_id : 2 , text : "int" , isCorrect : false} , {_id : 3 , text : "int" , isCorrect : false} , {_id : 4 , text : "int" , isCorrect : false}],
-    explanation: "The 'const' keyword is used to declae a variable whose value cannot be changed after initialization."
-  },
-  {
-    questionText: 'What is the main purpose of the `iostream` library in C++?',
-    options: [ {_id : 1 , text : "int" , isCorrect : false} , {_id : 1 , text : "int" , isCorrect : false} , {_id : 1 , text : "int" , isCorrect : false} , {_id : 1 , text : "int" , isCorrect : true} ],
-    explanation: 'The `iostream` library provides the basic input and output functionalities, such as `cout` for output and `cin` for input.'
-  }
-]
+    const quizData = await generateQuestions(topic, numberOfQuestions, difficulty);
+    
     if (quizData && !quizData.error) {
       console.log("Generated Quiz Questions:", quizData);
       const quiz = await Quiz.insertOne({
