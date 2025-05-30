@@ -22,7 +22,6 @@ const QuizPage = () => {
   const [error, setError] = useState(null);
   const [quizStatus, setQuizStatus] = useState("waiting"); // waiting, active, completed
   const [quizStartTime, setQuizStartTime] = useState(null);
-  const [userAnswers, setUserAnswers] = useState([]);
   const [durationPerQues , setDurationPerQues] = useState(30);
 
   // Fetch quiz data or set AI quiz data
@@ -43,11 +42,11 @@ const QuizPage = () => {
             numberOfQuestions: quizData.numQuestions,
             difficulty: quizData.difficulty,
           });
-          const aiQuizId = 'ai-' + Math.random().toString(36).substring(2, 10);
-          quizId = aiQuizId;
-          setQuizIdState(aiQuizId);
           
-          setQuiz(response.quizData);
+          setQuizIdState(response.quizCode);
+          quizId = response.quizCode; 
+          console.log(response);
+          setQuiz(response.quizDate);
           setQuizStatus("started");
           setDurationPerQues(10);
           setLoading(false);

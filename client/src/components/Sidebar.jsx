@@ -102,6 +102,16 @@ const Sidebar = ({ className, onToggle }) => {
             </>
           ) : userProfile?.role === 'teacher' ? (
             <>
+
+            <li>
+                <Link 
+                  to="/create-quiz" 
+                  className={`flex items-center p-3 rounded-lg hover:bg-indigo-800 transition-colors ${isActive('/create-quiz')}`}
+                >
+                  <FaPlusCircle className="w-5 h-5 flex-shrink-0" />
+                  {isOpen && <span className="ml-3 truncate">Create Quiz</span>}
+                </Link>
+              </li>
               
               <li>
                 <Link 

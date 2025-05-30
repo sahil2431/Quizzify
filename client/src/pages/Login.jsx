@@ -46,7 +46,7 @@ const Login = () => {
       // Check if userProfile is loaded and has a role
       if (userProfile && userProfile.role) {
         navigate('/dashboard');
-      } else if (userProfile && (!userProfile.role)) {
+      } else if (currentUser && (!userProfile || !userProfile.role)) {
         navigate('/select-role');
       }
     }

@@ -2,6 +2,42 @@ import FeedBack from "../models/Feedback.js";
 import Quiz from "../models/Quiz.js";
 import { generateFeedback } from "../services/geminiService.js";
 import { generateQuestions } from '../services/geminiService.js';
+import {nanoid} from 'nanoid';
+
+export const createQuiz = async (req, res) => {
+  console.log(req.body)
+  const { title, description, questions , startTime , durationPerQuestion} = req.body;
+  const userId = req.dbUser._id;
+  if (!title || !questions || questions.length === 0 || !startTime || !durationPerQuestion) {
+    return res.status(400).json({ status: false, message: "All fields are required" });
+  }
+
+  try {
+    const accessCode = nanoid(7).toUpperCase();
+    const quiz = await Quiz.insertOne({
+      title,
+      description,
+      questions,
+      creator: userId,
+      accessCode,
+      status: "not started",
+      startTime: new Date(startTime),
+      durationPerQuestion: parseInt(durationPerQuestion) || 0, 
+    })
+
+    if (!quiz) {
+      return res.status(500).json({ status: false, message: "Failed to create quiz" });
+    }
+
+    return res.status(200).json({ status: true, quiz: { ...quiz, accessCode } });
+    
+  } catch (error) {
+    console.error("Error creating quiz:", error);
+    return res.status(500).json({ status: false, message: "Internal server error" });
+    
+  }
+
+}
 
 export const getQuizzByCode = async (req, res) => {
   const accessCode = req.params.code;
@@ -62,16 +98,39 @@ export const getQuizzesOfUser = async (req, res) => {
 export const generateQuiz = async(req , res) =>{
   try {
     const { topic, numberOfQuestions, difficulty } = req.body;
-    console.log("Received data:", req.body);
-
+   
     if (!topic || !numberOfQuestions || !difficulty) {
       return res.status(400).json({ error: 'All fields are required' });
     }
-    const quizData = await generateQuestions(topic, numberOfQuestions, difficulty);
-
+    
+    //const quizData = await generateQuestions(topic, numberOfQuestions, difficulty);
+    const quizData = [
+  {
+    questionText: 'Which of the following is NOT a fundamental data type in C++?',
+    options: [ {_id : 1 , text : "int" , isCorrect : false} , {_id : 1 , text : "int" , isCorrect : false} , {_id : 1 , text : "int" , isCorrect : false} , {_id : 1 , text : "int" , isCorrect : false} ],
+    explanation: "The 'string' data type is part of the C++ Standard Template Library (STL), not a fundamental built-in type.  int, float, and bool are fundamental types."
+  },
+  {
+    questionText: 'What keyword is used to declare a constant variable in C++?',
+    options: [  {_id : 1 , text : "int" , isCorrect : false} , {_id : 2 , text : "int" , isCorrect : false} , {_id : 3 , text : "int" , isCorrect : false} , {_id : 4 , text : "int" , isCorrect : false}],
+    explanation: "The 'const' keyword is used to declae a variable whose value cannot be changed after initialization."
+  },
+  {
+    questionText: 'What is the main purpose of the `iostream` library in C++?',
+    options: [ {_id : 1 , text : "int" , isCorrect : false} , {_id : 1 , text : "int" , isCorrect : false} , {_id : 1 , text : "int" , isCorrect : false} , {_id : 1 , text : "int" , isCorrect : true} ],
+    explanation: 'The `iostream` library provides the basic input and output functionalities, such as `cout` for output and `cin` for input.'
+  }
+]
     if (quizData && !quizData.error) {
       console.log("Generated Quiz Questions:", quizData);
-      return res.status(200).json({ status: true, quizData });
+      const quiz = await Quiz.insertOne({
+        title: `Quiz on ${topic}`,
+        questions : quizData.questions,
+        creator: req.dbUser._id,
+        accessCode: nanoid(7).toUpperCase(),
+        isAigenerated: true,
+      })
+      return res.status(200).json({ status: true, quizData , quizCode : quiz.accessCode });
     } else {
       console.error("Failed to fetch quiz questions:", quizData.error);
       return res.status(500).json({ error: 'Failed to fetch quiz questions' });

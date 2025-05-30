@@ -52,6 +52,17 @@ const MyQuizzes = () => {
 
   const isTeacher = userProfile?.role === 'teacher';
 
+  useEffect(() => {
+    if (userProfile && userProfile.role !== "teacher") {
+        alert("You are not authorized to access this page.");
+        navigate("/dashboard");
+    }
+}, [userProfile, navigate]);
+
+if (!userProfile || userProfile.role !== "teacher") {
+    return null; // Return nothing while redirecting
+}
+
   return (
     <div className="container mx-auto px-4 py-8 animate-fadeIn">
       <h1 className="text-3xl font-bold mb-6">My Quizzes</h1>

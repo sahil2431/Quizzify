@@ -86,6 +86,7 @@ const QuizResults = ({ quizId, currentUser, isTeacher, isAIQuiz }) => {
     const saveQuiz = async () => {
       if (questions.length > 0 && userAnswers.length > 0) {
         setIsLoading(false);
+        console.log(currentUser , questions)
         const response = await saveStudentQuizAttempt({
           quizCode : quizId,
           studentName: currentUser.displayName,

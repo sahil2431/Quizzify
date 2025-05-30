@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState , useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const JoinQuizz = () => {
     const [showJoinPopup, setShowJoinPopup] = useState(false);
@@ -10,6 +11,8 @@ const JoinQuizz = () => {
         difficulty: "medium",
         numQuestions: 10
     });
+
+    const {userProfile} = useAuth();
     
     const navigate = useNavigate();
 
@@ -31,6 +34,17 @@ const JoinQuizz = () => {
         setShowJoinPopup(false);
         setShowAIPopup(false);
     };
+
+    useEffect(() => {
+        if (userProfile && userProfile.role !== "student") {
+            alert("You are not authorized to access this page.");
+            navigate("/dashboard");
+        }
+    }, [userProfile, navigate]);
+
+    if (!userProfile || userProfile.role !== "student") {
+        return null; // Return nothing while redirecting
+    }
 
     return (
         <div className="animate-fadeIn">

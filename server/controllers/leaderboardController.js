@@ -2,8 +2,10 @@ import Leaderboard from "../models/Leaderboard.js";
 
 export const saveLeaderboard = async (req, res) => {
     const { quizCode, studentName, photoURL, score , maxScore  } = req.body;
+    console.log(req.body);
     const studentUID = req.dbUser.uid;
-    if (!quizCode || !studentName || !score || !maxScore) {
+    if (!quizCode || !studentName || score === undefined || score === null || maxScore === undefined || maxScore === null) {
+        console.error("Missing required fields:", { quizCode, studentName, score, maxScore });
         return res.status(400).json({ error: "Missing required fields" });
     }
 

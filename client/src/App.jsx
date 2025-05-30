@@ -15,7 +15,8 @@ import {
   Landing,
   JoinQuizz,
   Quiz,
-  MyQuizzes
+  MyQuizzes,
+  CreateQuiz
 } from "./pages/index.js"
 
 // Layout component for authenticated pages with Sidebar
@@ -27,9 +28,9 @@ const DashboardLayout = ({ children }) => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <Sidebar onToggle={handleSidebarToggle} />
-      <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
+      <div className={`min-h-screen transition-all duration-300 ${sidebarOpen ? 'pl-64' : 'pl-20'}`}>
         <Navbar />
         <main className="p-4 md:p-8">
           {children}
@@ -131,14 +132,11 @@ function AppRoutes() {
         
         {/* Teacher routes */}
         <Route 
-          path="/host-quiz" 
+          path="/create-quiz" 
           element={
             <PrivateRoute>
               <DashboardLayout>
-                <div className="animate-fadeIn">
-                  <h1 className="text-2xl font-bold mb-4">Host New Quiz</h1>
-                  {/* Content to be added */}
-                </div>
+                <CreateQuiz />
               </DashboardLayout>
             </PrivateRoute>
           } 

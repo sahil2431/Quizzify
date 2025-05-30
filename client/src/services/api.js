@@ -143,4 +143,15 @@ export const saveStudentQuizAttempt = async (data) => {
   }
 }
 
+export const saveQuiz = async(data) => {
+  try {
+    const response = await api.post('/quizzes/create', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error saving quiz:', error);
+    throw error;
+    
+  }
+}
+
 export default api; 

@@ -6,6 +6,7 @@ import AccountDetails from "./AccountDetails";
 import JoinQuizz from "./JoinQuizz";
 import Quiz from "./Quiz";
 import MyQuizzes from './MyQuizzes';
+import CreateQuiz from './CreateQuiz';
 
 export {
     Dashboard , 
@@ -15,5 +16,6 @@ export {
     AccountDetails,
     JoinQuizz,
     Quiz,
-    MyQuizzes
+    MyQuizzes,
+    CreateQuiz
 }

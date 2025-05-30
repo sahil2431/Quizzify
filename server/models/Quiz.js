@@ -35,16 +35,16 @@ const quizSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
+    isAigenerated : {
+      type: Boolean,
+      default: false
+    },
     creator: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true
     },
     questions: [questionSchema],
-    isPublic: {
-      type: Boolean,
-      default: false
-    },
     accessCode: {
       type: String,
       default: ''
@@ -54,10 +54,6 @@ const quizSchema = new mongoose.Schema(
       default: 10
     },
     startTime: {
-      type: Date,
-      default: null
-    },
-    endTime: {
       type: Date,
       default: null
     },
