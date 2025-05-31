@@ -158,7 +158,10 @@ const QuizPage = () => {
         <p>{error}</p>
         <button
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          onClick={() => navigate("/join-quizz")}
+          onClick={() => {
+            document.exitFullscreen();
+            navigate("/join-quizz")
+          }}
         >
           Back to Join Quiz
         </button>
