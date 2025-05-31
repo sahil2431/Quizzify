@@ -170,7 +170,10 @@ const StudentQuiz = ({
 
       {/* Existing render logic */}
       {quizStatus === "waiting" ? (
-        <WaitingRoom quiz={quiz} quizCode={quizId} onExit={() => navigate("/dashboard")} />
+        <WaitingRoom quiz={quiz} quizCode={quizId} onExit={() => {
+          document.exitFullscreen()
+          navigate("/dashboard")
+        }} />
       ) : quizStatus === "completed" || currentQuestionIndex >= quiz?.questions?.length ? (
         <div>
           {!isAIQuiz && (

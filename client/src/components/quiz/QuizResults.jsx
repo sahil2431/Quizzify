@@ -15,6 +15,7 @@ const QuizResults = ({ quizId, currentUser, isTeacher, isAIQuiz }) => {
   const navigate = useNavigate()
 
   const onExit = () => {
+    document.exitFullscreen();
     navigate("/dashboard")
   }
 
